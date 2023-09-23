@@ -1,15 +1,17 @@
 from sqlalchemy import Column, Integer, ForeignKey, Text
 
-from .base import AbstractModel
+from .base import CharatyDonationModel
 
 
-class Donation(AbstractModel):
+class Donation(CharatyDonationModel):
     """Модель `Пожертвование`."""
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     comment = Column(Text, nullable=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
-            f'№{self.id}. Пожертвовано: {self.invested_amount}/{self.full_amount}'
+            f'{super().__repr__()},'
+            f'user_id={self.user_id},'
+            f'comment={self.comment}'
         )

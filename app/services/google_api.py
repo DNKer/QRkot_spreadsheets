@@ -1,37 +1,38 @@
+import copy
 from datetime import datetime
-from typing import List
+from http import HTTPStatus
+from typing import Any, Dict, List
 
 from aiogoogle import Aiogoogle
+from fastapi import HTTPException
 
 from app.core.config import settings
+from app.core.google_client import SCOPES
+from app.services import google_config as g_const
 
 
-NOW_DATE_TIME: str = datetime.now().strftime(settings.DATE_FORMAT)
-
-
-async def spreadsheets_create(wrapper_services: Aiogoogle) -> str:
+async def spreadsheets_create(wrapper_services: Aiogoogle,
+                              now_date_time: datetime,
+                              spreadsheet_body: Dict = g_const.SPREADSHEET_BODY,
+                              ) -> Any:
     """Создает эелектронную таблицу на Google-drive."""
-    service = await wrapper_services.discover('sheets', settings.G_VERSION_SHEETS)
-    spreadsheet_body = {
-        'properties': {'title': f'Отчёт приложения QRKot на {NOW_DATE_TIME}',
-                       'locale': settings.G_LOCALE},
-        'sheets': [{'properties': {'sheetType': settings.G_SHEET_TYPE,
-                                   'sheetId': settings.G_SHEET_ID,
-                                   'title': settings.G_TITLE,
-                                   'gridProperties': {'rowCount': settings.G_ROW_COUNT,
-                                                      'columnCount': settings.G_COLUMN_COUNT
-                                                      }}
-                    }]
-    }
+
+    spreadsheet_body = (
+        copy.deepcopy(g_const.SPREADSHEET_BODY) if spreadsheet_body is None
+        else spreadsheet_body
+    )
+    spreadsheet_body['properties']['title'] = g_const.TITLE.format(
+        str(now_date_time.strftime(g_const.G_DATE_FORMAT)))
+    service = await wrapper_services.discover(
+        'sheets', g_const.G_VERSION_SHEETS)
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
     )
-    spreadsheetid = response['spreadsheetId']
-    return spreadsheetid
+    return (f'{SCOPES[0]}/d/{response["spreadsheetId"]}')
 
 
 async def set_user_permissions(
-        spreadsheetid: str,
+        spreadsheet_id: str,
         wrapper_services: Aiogoogle
 ) -> None:
     """Предоставляет права доступа вашему личному аккаунту к созданному документу."""
@@ -40,45 +41,51 @@ async def set_user_permissions(
         'role': 'writer',
         'emailAddress': settings.email
     }
-    service = await wrapper_services.discover('drive', settings.G_VERSION_DRIVE)
+    service = await wrapper_services.discover('drive', g_const.G_VERSION_DRIVE)
     await wrapper_services.as_service_account(
         service.permissions.create(
-            fileId=spreadsheetid,
+            fileId=spreadsheet_id,
             json=permissions_body,
             fields='id'
         ))
 
 
 async def spreadsheets_update_value(
-        spreadsheetid: str,
+        spreadsheet_id: str,
         projects: List,
-        wrapper_services: Aiogoogle
+        wrapper_services: Aiogoogle,
+        now_date_time: datetime,
 ) -> None:
     """Записывает полученную из базы данных информацию в документ с таблицами."""
-    service = await wrapper_services.discover('sheets', settings.G_VERSION_SHEETS)
-    # Формируем тело таблицы
-    table_values: List[List[str]] = [
-        ['Отчёт от', NOW_DATE_TIME],
-        ['Проекты по скорости закрытия'],
-        ['Название проекта', 'Время сбора средств', 'Описание']
+    service = await wrapper_services.discover('sheets', g_const.G_VERSION_SHEETS)
+    project_list: list = []
+    project_list = sorted((
+        (
+            project.name,
+            project.close_date - project.create_date,
+            project.description
+        ) for project in projects
+    ), key=lambda x: x[1])
+    header = copy.deepcopy(g_const.HEADER)
+    header[0][1] = str(now_date_time)
+    table_values = [
+        *header,
+        *[list(map(str, field)) for field in project_list],
     ]
-    for project in projects:
-        new_row: List[str] = [
-            str(project['name']),
-            str(project['duration']),
-            str(project['description'])
-        ]
-        table_values.append(new_row)
-    update_body = {
-        'majorDimension': settings.G_MAJOR_DIMENSION_FILL,
-        'values': table_values
-    }
-    len_table_values: int = len(table_values)
+    send_row, send_column = len(table_values), max(len(table) for table in header)
+    if send_row > g_const.G_ROW_COUNT or send_column > g_const.G_COLUMN_COUNT:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=g_const.SPREADSHEET_SIZE_ERR_MSG)
+
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
-            spreadsheetId=spreadsheetid,
-            range=f'A1:C{len_table_values}',
+            spreadsheetId=spreadsheet_id,
+            range=f'R1C1:R{g_const.G_ROW_COUNT}C{g_const.G_COLUMN_COUNT}',
             valueInputOption='USER_ENTERED',
-            json=update_body
+            json={
+                'majorDimension': 'ROWS',
+                'values': table_values
+            }
         )
     )

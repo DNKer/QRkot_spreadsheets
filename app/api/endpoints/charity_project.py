@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.validators import (
     check_charity_project_exists,
     check_closed,
-    check_full_amount,
-    check_name_duplicate,
+    check_full_amount_is_less_than_invested,
+    check_charity_project_name_duplicate,
     check_project_is_invested,
 )
 from app.core.db import get_async_session
@@ -38,9 +38,16 @@ async def create_new_charity_project(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создать проект. Только для суперпользователей."""
-    await check_name_duplicate(charity_project.name, session)
-    new_project = await charity_project_crud.create(charity_project, session)
-    await investment(new_project, donation_crud, session)
+    project = await charity_project_crud.get_charity_project_id_by_name(
+        charity_project.name, session
+    )
+    check_charity_project_name_duplicate(charity_project.name, project)
+    new_project = charity_project_crud.create(charity_project)
+    session.add(new_project)
+    not_invested_list = await donation_crud.get_not_invested(session)
+    invested_list = investment(new_project, not_invested_list)
+    await charity_project_crud.commit_(invested_list, session)
+    await session.refresh(new_project)
     return new_project
 
 
@@ -65,20 +72,23 @@ async def get_all_charity_projects(
 )
 async def partially_update_charity_project(
         project_id: int,
-        obj_in: CharityProjectUpdate,
+        project_in: CharityProjectUpdate,
         session: AsyncSession = Depends(get_async_session),
 ):
     """Изменить проект. Только для суперпользователя."""
-    charity_project = await check_charity_project_exists(
-        project_id, session
+    project_by_id = await charity_project_crud.get(project_id, session)
+    check_charity_project_exists(project_by_id)
+    check_closed(project_by_id)
+    check_full_amount_is_less_than_invested(
+        project_in.full_amount, project_by_id.invested_amount
     )
-    check_closed(charity_project)
-    if obj_in.name is not None:
-        await check_name_duplicate(obj_in.name, session)
-    if obj_in.full_amount is not None:
-        check_full_amount(charity_project, obj_in.full_amount)
+    check_charity_project_name_duplicate(project_in.name, project_by_id)
+    project_by_name = await charity_project_crud.get_charity_project_id_by_name(
+        project_in.name, session
+    )
+    check_charity_project_name_duplicate(project_in.name, project_by_name)
     charity_project = await charity_project_crud.update(
-        charity_project, obj_in, session
+        project_by_id, project_in, session
     )
     return charity_project
 
@@ -94,8 +104,6 @@ async def remove_charity_project(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Удалить проект. Только для суперпользователя."""
-    charity_project = await check_charity_project_exists(
-        project_id, session
-    )
-    charity_project = check_project_is_invested(charity_project)
+    charity_project = await charity_project_crud.get(project_id, session)
+    check_project_is_invested(charity_project)
     return await charity_project_crud.remove(charity_project, session)

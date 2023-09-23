@@ -13,11 +13,12 @@ class CRUDDonation(CRUDBase):
         self, session: AsyncSession, user: User
     ) -> Optional[Donation]:
         """Получение всех пожертвований пользователя."""
-        select_user = select(Donation).where(
-            Donation.user_id == user.id,
+        select_user_donations = await session.execute(
+            select(Donation).where(
+                Donation.user_id == user.id
+            )
         )
-        donations = await session.execute(select_user)
-        return donations.scalars().all()
+        return select_user_donations.scalars().all()
 
 
 donation_crud = CRUDDonation(Donation)

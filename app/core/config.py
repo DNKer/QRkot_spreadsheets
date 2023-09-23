@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     app_title: str = 'QRKot'
     app_author: str = 'DNK'
-    database_url: str = 'sqlite+aiosqlite:///./fastapi.db'
+    database_url: str = 'sqlite+aiosqlite:///./kitty_foundation.db'
     secret: str = 'SECRET'
     description: str = 'Приложение благотворительного фонда поддержки котиков.'
     first_superuser_email: Optional[EmailStr] = None
@@ -41,18 +41,6 @@ class Settings(BaseSettings):
     auth_provider_x509_cert_url: Optional[str] = None
     client_x509_cert_url: Optional[str] = None
     email: Optional[str] = None
-
-    # Переменные для отчетов Google-sheets
-    DATE_FORMAT: str = '%Y/%m/%d %H:%M:%S'
-    G_VERSION_SHEETS: str = 'v4'
-    G_VERSION_DRIVE: str = 'v3'
-    G_LOCALE: str = 'ru_RU'
-    G_SHEET_TYPE: str = 'GRID'
-    G_SHEET_ID: int = 0
-    G_TITLE: str = 'Скорость закрытия проектов.'
-    G_ROW_COUNT: int = 100
-    G_COLUMN_COUNT: int = 11
-    G_MAJOR_DIMENSION_FILL: str = 'ROWS'
 
     # Настройки логгирования
     logging.basicConfig(

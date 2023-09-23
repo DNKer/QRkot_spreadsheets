@@ -25,19 +25,23 @@ router = APIRouter()
 @router.post(
     '/',
     response_model=DonationView,
+    dependencies=[Depends(current_user)],
     response_model_exclude_none=True,
     description='Создание `пожертвования.`',
 )
 async def create_donation(
-        reservation: DonationCreate,
+        donation: DonationCreate,
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user),
 ):
     """Создание `пожертвования`. Текущий пользователь."""
-    new_donation = await donation_crud.create(
-        reservation, session, user
-    )
-    await investment(new_donation, charity_project_crud, session)
+
+    new_donation = donation_crud.create(donation, user)
+    session.add(new_donation)
+    not_invested_project = await charity_project_crud.get_not_invested(session)
+    invested_list = investment(new_donation, not_invested_project)
+    await donation_crud.commit_(invested_list, session)
+    await session.refresh(new_donation)
     return new_donation
 
 

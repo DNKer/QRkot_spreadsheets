@@ -1,15 +1,24 @@
-from sqlalchemy import Column, String, Text
+from sqlalchemy import CheckConstraint, Column, String, Text
+from sqlalchemy.orm import declared_attr
 
-from app.models.base import AbstractModel
+from app.models.base import CharatyDonationModel
 
 
-class CharityProject(AbstractModel):
+class CharityProject(CharatyDonationModel):
     """Модель `Благотворительный проект`."""
 
-    name = Column(String(100), nullable=False, unique=True, )
+    @declared_attr
+    def __table_args__(cls) -> tuple:
+        return (
+            *super().__table_args__, CheckConstraint('length(name) > 0'),
+            CheckConstraint('length(description) > 0'))
+
+    name = Column(String(100), nullable=False, unique=True)
     description = Column(Text, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
-            f'{self.name}. Собрано: {self.invested_amount}/{self.full_amount}'
+            f'{super().__repr__()},'
+            f'name={self.name},'
+            f'description={self.description}'
         )

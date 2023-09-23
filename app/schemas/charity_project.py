@@ -25,9 +25,12 @@ class CharityProjectCreate(CharityProjectBase):
     full_amount — требуемая сумма
     """
 
-    name: str = Field(..., min_length=1, max_length=100)
-    description: str = Field(..., min_length=1)
-    full_amount: PositiveInt
+    name: str = Field(..., max_length=100)
+    description: str
+    full_amount: PositiveInt = Field(..., example=100)
+
+    class Config:
+        min_anystr_length = 1
 
 
 class CharityProjectUpdate(CharityProjectBase):
@@ -36,10 +39,11 @@ class CharityProjectUpdate(CharityProjectBase):
     """
 
     name: str = Field(None, min_length=1, max_length=100)
-    description: str = Field(None, min_length=1)
-    full_amount: int = Field(None, gt=0)
+    description: Optional[str]
+    full_amount: Optional[PositiveInt] = Field(example=100)
 
     class Config:
+        min_anystr_length = 1
         extra = Extra.forbid
 
 
@@ -62,7 +66,7 @@ class CharityProjectDB(CharityProjectCreate):
     id: int
     invested_amount: int = 0
     fully_invested: bool = False
-    create_date: datetime = datetime.now()
+    create_date: datetime = datetime.utcnow()
     close_date: Optional[datetime]
 
     class Config:
