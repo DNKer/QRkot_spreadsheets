@@ -1,18 +1,20 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.crud.chartity_project import charity_project_crud
 from app.models import CharityProject
 
 
-def check_charity_project_name_duplicate(
+async def check_charity_project_name_duplicate(
         charity_project_name: str,
-        charity_project: CharityProject,
-):
-    if (
-        charity_project is not None and
-        charity_project.name == charity_project_name
-    ):
+        session: AsyncSession,
+) -> None:
+    """Проверяет уникальность имени (project_name) проекта."""
+    project = await charity_project_crud.get_charity_project_name(
+        charity_project_name, session)
+    if project:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='Проект с таким именем уже существует!',
@@ -37,7 +39,7 @@ def check_charity_project_exists(charity_project: CharityProject) -> None:
         )
 
 
-def check_closed(charity_project: CharityProject):
+def check_closed(charity_project: CharityProject) -> None:
     """Проверка закрыт ли проект, редактирование запрещено."""
     if charity_project.fully_invested:
         raise HTTPException(
@@ -49,7 +51,7 @@ def check_closed(charity_project: CharityProject):
 def check_full_amount_is_less_than_invested(
     new_full_amount: int,
     invested_amount: int
-):
+) -> None:
     """Проверка, что новая требуемая сумма
     не пуста и больше уже внесенной.
     Используется при изменении проекта. """

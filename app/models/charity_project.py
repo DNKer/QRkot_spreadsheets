@@ -1,10 +1,10 @@
 from sqlalchemy import CheckConstraint, Column, String, Text
 from sqlalchemy.orm import declared_attr
 
-from app.models.base import CharatyDonationModel
+from app.models.base import CharityDonationModel
 
 
-class CharityProject(CharatyDonationModel):
+class CharityProject(CharityDonationModel):
     """Модель `Благотворительный проект`."""
 
     @declared_attr

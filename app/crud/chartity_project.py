@@ -10,20 +10,20 @@ from app.models.charity_project import CharityProject
 class CrudCharityProject(CRUDBase):
 
     @staticmethod
-    async def get_charity_project_id_by_name(
+    async def get_charity_project_name(
             charity_project_name: str,
             session: AsyncSession,
     ) -> Optional[CharityProject]:
-        """Получить ID проекта по его имени."""
-        db_charity_project_id = await session.execute(
+        """Получить проект по его имени."""
+        db_charity_project = await session.execute(
             select(CharityProject).where(
                 CharityProject.name == charity_project_name
             )
         )
-        return db_charity_project_id.scalars().first()
+        return db_charity_project.scalars().first()
 
     @staticmethod
-    async def get_projects_by_completion_rate(
+    async def get_projects_fully_invested(
             session: AsyncSession,
     ) -> List[Dict[str, str]]:
         """Получить НЕсортированный список со всеми закрытыми проектами."""

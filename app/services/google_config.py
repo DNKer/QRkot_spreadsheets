@@ -2,15 +2,11 @@ from typing import List
 
 
 # Переменные для Google Sheets
-G_DATE_FORMAT: str = '%Y/%m/%d %H:%M:%S'
-G_VERSION_SHEETS: str = 'v4'
-G_VERSION_DRIVE: str = 'v3'
-G_LOCALE: str = 'ru_RU'
-G_SHEET_TYPE: str = 'GRID'
-G_SHEET_ID: int = 0
-G_TITLE: str = 'Скорость закрытия проектов.'
-G_ROW_COUNT: int = 100
-G_COLUMN_COUNT: int = 11
+DATE_FORMAT: str = '%Y/%m/%d %H:%M:%S'
+VERSION_SHEETS: str = 'v4'
+VERSION_DRIVE: str = 'v3'
+ROW_COUNT: int = 100
+COLUMN_COUNT: int = 11
 
 HEADER: List[List[str]] = [
     ['Отчёт от', ''],
@@ -21,19 +17,21 @@ HEADER: List[List[str]] = [
 TITLE: str = 'Отчёт приложения QRKot на {}'
 SPREADSHEET_BODY: dict = dict(
     properties=dict(
-        locale=G_LOCALE,
+        locale='ru_RU',
     ),
     sheets=[dict(properties=dict(
-        sheetType=G_SHEET_TYPE,
-        sheetId=G_SHEET_ID,
-        title=G_TITLE,
+        sheetType='GRID',
+        sheetId=0,
+        title='Скорость закрытия проектов.',
         gridProperties=dict(
-            rowCount=G_ROW_COUNT,
-            columnCount=G_COLUMN_COUNT,
+            rowCount=ROW_COUNT,
+            columnCount=COLUMN_COUNT,
         )
     ))]
 )
 
-SPREADSHEET_SIZE_ERR_MSG: str = (
-    'Количество передаваемых данных не помещается в таблице!'
+SPREADSHEET_SIZE_ERROR_MESSAGE: str = (
+    'Невозможно создать таблицу размера {send_row} x {send_column}. '
+    'Google-таблицы могут содержать не больше 5000000 ячеек и '
+    'не более 18278 столбцов суммарно.'
 )

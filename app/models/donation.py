@@ -1,9 +1,9 @@
 from sqlalchemy import Column, Integer, ForeignKey, Text
 
-from .base import CharatyDonationModel
+from .base import CharityDonationModel
 
 
-class Donation(CharatyDonationModel):
+class Donation(CharityDonationModel):
     """Модель `Пожертвование`."""
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)

@@ -1,34 +1,42 @@
 import copy
-from datetime import datetime
-from http import HTTPStatus
+import datetime
 from typing import Any, Dict, List
 
 from aiogoogle import Aiogoogle
-from fastapi import HTTPException
+from pydantic import ValidationError
 
 from app.core.config import settings
-from app.core.google_client import SCOPES
-from app.services import google_config as g_const
+from app.services.google_config import (
+    COLUMN_COUNT,
+    DATE_FORMAT,
+    ROW_COUNT,
+    VERSION_DRIVE,
+    VERSION_SHEETS,
+    HEADER,
+    SPREADSHEET_BODY,
+    SPREADSHEET_SIZE_ERROR_MESSAGE,
+    TITLE
+)
 
 
 async def spreadsheets_create(wrapper_services: Aiogoogle,
                               now_date_time: datetime,
-                              spreadsheet_body: Dict = g_const.SPREADSHEET_BODY,
+                              spreadsheet_body: Dict = None,
                               ) -> Any:
     """Создает эелектронную таблицу на Google-drive."""
 
     spreadsheet_body = (
-        copy.deepcopy(g_const.SPREADSHEET_BODY) if spreadsheet_body is None
+        copy.deepcopy(SPREADSHEET_BODY) if spreadsheet_body is None
         else spreadsheet_body
     )
-    spreadsheet_body['properties']['title'] = g_const.TITLE.format(
-        str(now_date_time.strftime(g_const.G_DATE_FORMAT)))
+    spreadsheet_body['properties']['title'] = TITLE.format(
+        now_date_time.strftime(DATE_FORMAT))
     service = await wrapper_services.discover(
-        'sheets', g_const.G_VERSION_SHEETS)
+        'sheets', VERSION_SHEETS)
     response = await wrapper_services.as_service_account(
         service.spreadsheets.create(json=spreadsheet_body)
     )
-    return (f'{SCOPES[0]}/d/{response["spreadsheetId"]}')
+    return response['spreadsheetId'], response['spreadsheetUrl']
 
 
 async def set_user_permissions(
@@ -41,7 +49,7 @@ async def set_user_permissions(
         'role': 'writer',
         'emailAddress': settings.email
     }
-    service = await wrapper_services.discover('drive', g_const.G_VERSION_DRIVE)
+    service = await wrapper_services.discover('drive', VERSION_DRIVE)
     await wrapper_services.as_service_account(
         service.permissions.create(
             fileId=spreadsheet_id,
@@ -54,11 +62,11 @@ async def spreadsheets_update_value(
         spreadsheet_id: str,
         projects: List,
         wrapper_services: Aiogoogle,
-        now_date_time: datetime,
+        rows: int,
+        columns: int,
 ) -> None:
     """Записывает полученную из базы данных информацию в документ с таблицами."""
-    service = await wrapper_services.discover('sheets', g_const.G_VERSION_SHEETS)
-    project_list: list = []
+    service = await wrapper_services.discover('sheets', VERSION_SHEETS)
     project_list = sorted((
         (
             project.name,
@@ -66,22 +74,22 @@ async def spreadsheets_update_value(
             project.description
         ) for project in projects
     ), key=lambda x: x[1])
-    header = copy.deepcopy(g_const.HEADER)
-    header[0][1] = str(now_date_time)
+    header = copy.deepcopy(HEADER)
+    header[0][1] = datetime.utcnow()
     table_values = [
         *header,
         *[list(map(str, field)) for field in project_list],
     ]
-    send_row, send_column = len(table_values), max(len(table) for table in header)
-    if send_row > g_const.G_ROW_COUNT or send_column > g_const.G_COLUMN_COUNT:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=g_const.SPREADSHEET_SIZE_ERR_MSG)
+    send_row, send_column = len(table_values), (max(map(len, table)) for table in header)
+    if send_row > ROW_COUNT or send_column > COLUMN_COUNT:
+        raise ValidationError(
+            SPREADSHEET_SIZE_ERROR_MESSAGE.format(send_row=send_row, send_column=send_column)
+        )
 
     await wrapper_services.as_service_account(
         service.spreadsheets.values.update(
             spreadsheetId=spreadsheet_id,
-            range=f'R1C1:R{g_const.G_ROW_COUNT}C{g_const.G_COLUMN_COUNT}',
+            range=f'R1C1:R{rows}C{columns}',
             valueInputOption='USER_ENTERED',
             json={
                 'majorDimension': 'ROWS',

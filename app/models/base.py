@@ -11,7 +11,7 @@ from sqlalchemy import (
 from app.core.db import Base
 
 
-class CharatyDonationModel(Base):
+class CharityDonationModel(Base):
     """Абстрактная модель для моделей `Благотворительный проект` и `Пожертвование`."""
 
     __abstract__ = True

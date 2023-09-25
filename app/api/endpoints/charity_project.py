@@ -38,15 +38,14 @@ async def create_new_charity_project(
         session: AsyncSession = Depends(get_async_session),
 ):
     """Создать проект. Только для суперпользователей."""
-    project = await charity_project_crud.get_charity_project_id_by_name(
-        charity_project.name, session
+
+    await check_charity_project_name_duplicate(charity_project.name, session)
+    new_project = await charity_project_crud.create(charity_project, session, flag=False)
+    investment(
+        new_project,
+        await donation_crud.get_not_invested(session)
     )
-    check_charity_project_name_duplicate(charity_project.name, project)
-    new_project = charity_project_crud.create(charity_project)
-    session.add(new_project)
-    not_invested_list = await donation_crud.get_not_invested(session)
-    invested_list = investment(new_project, not_invested_list)
-    await charity_project_crud.commit_(invested_list, session)
+    await session.commit()
     await session.refresh(new_project)
     return new_project
 
@@ -82,11 +81,7 @@ async def partially_update_charity_project(
     check_full_amount_is_less_than_invested(
         project_in.full_amount, project_by_id.invested_amount
     )
-    check_charity_project_name_duplicate(project_in.name, project_by_id)
-    project_by_name = await charity_project_crud.get_charity_project_id_by_name(
-        project_in.name, session
-    )
-    check_charity_project_name_duplicate(project_in.name, project_by_name)
+    await check_charity_project_name_duplicate(project_in.name, session)
     charity_project = await charity_project_crud.update(
         project_by_id, project_in, session
     )
