@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,17 +21,6 @@ class CrudCharityProject(CRUDBase):
             )
         )
         return db_charity_project.scalars().first()
-
-    @staticmethod
-    async def get_projects_fully_invested(
-            session: AsyncSession,
-    ) -> List[Dict[str, str]]:
-        """Получить НЕсортированный список со всеми закрытыми проектами."""
-        close_projects = await session.execute(
-            select([CharityProject],).where(
-                CharityProject.fully_invested is True)
-        )
-        return close_projects.scalars().all()
 
 
 charity_project_crud = CrudCharityProject(CharityProject)

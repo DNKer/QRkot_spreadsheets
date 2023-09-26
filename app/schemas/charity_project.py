@@ -31,6 +31,13 @@ class CharityProjectCreate(CharityProjectBase):
 
     class Config:
         min_anystr_length = 1
+        schema_extra = {
+            'example': {
+                'name': 'Котофей',
+                'description': 'На молоко',
+                'full_amount': 5000
+            }
+        }
 
 
 class CharityProjectUpdate(CharityProjectBase):
@@ -45,6 +52,13 @@ class CharityProjectUpdate(CharityProjectBase):
     class Config:
         min_anystr_length = 1
         extra = Extra.forbid
+        schema_extra = {
+            'example': {
+                'name': 'Мурзик',
+                'description': 'На новый лоток',
+                'full_amount': 1000
+            }
+        }
 
 
 class CharityProjectDB(CharityProjectCreate):

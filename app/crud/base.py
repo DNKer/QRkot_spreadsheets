@@ -1,4 +1,4 @@
-from typing import List, Optional, TypeVar
+from typing import Dict, List, Optional, TypeVar
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
@@ -43,7 +43,7 @@ class CRUDBase:
             obj_in,
             session: AsyncSession,
             user: Optional[User] = None,
-            flag: Optional[bool] = True,
+            commit_choke: bool = True,
     ) -> ModelType:
         """Создать новый объект без коммита."""
         obj_in_data = obj_in.dict()
@@ -51,7 +51,7 @@ class CRUDBase:
             obj_in_data['user_id'] = user.id
         db_obj = self.model(**obj_in_data)
         session.add(db_obj)
-        if flag:
+        if commit_choke:
             await session.commit()
             await session.refresh(db_obj)
         return db_obj
@@ -92,5 +92,17 @@ class CRUDBase:
             select(self.model).where(
                 self.model.fully_invested == 0
             ).order_by(self.model.create_date)
+        )
+        return objects.scalars().all()
+
+    async def get_projects_fully_invested(
+            self,
+            session: AsyncSession,
+    ) -> List[Dict[str, str]]:
+        """Получить НЕсортированный список
+        со всеми завершенными проектами."""
+        objects = await session.execute(
+            select([self.model],).where(
+                self.model.fully_invested is True)
         )
         return objects.scalars().all()

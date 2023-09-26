@@ -196,7 +196,7 @@ GET http://127.0.0.1:8000/donation/
 ```http
 GET http://127.0.0.1:8000/google/
 ```
-![example_table](tests\fixtures\S01_tabel_example.png)
+![example_table](tests/fixtures/S01_tabel_example.png)
 
 ### &#10133; _Создание пожертвования:_
 ```http

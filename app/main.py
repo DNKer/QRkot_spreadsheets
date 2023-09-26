@@ -3,7 +3,7 @@ QRKot Spreadsheets.
 This is C@t charity project (https://github.com/DNKer/cat_charity_fund) upgrade
 Copyright (C) 2023 Authors: Dmitry Korepanov, Yandex practikum
 License Free
-Version: 1.1.0.2023.
+Version: 1.3.0.2023.
 """
 
 from fastapi import FastAPI

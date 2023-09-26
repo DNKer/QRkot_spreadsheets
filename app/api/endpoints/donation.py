@@ -36,10 +36,17 @@ async def create_donation(
 ):
     """Создание `пожертвования`. Текущий пользователь."""
 
-    new_donation = await donation_crud.create(donation, session, user, flag=False)
+    new_donation = await donation_crud.create(
+        donation,
+        session,
+        user,
+        commit_choke=False
+    )
+    investment(
+        new_donation,
+        await charity_project_crud.get_not_invested(session)
+    )
     session.add(new_donation)
-    not_invested_projects = await charity_project_crud.get_not_invested(session)
-    investment(new_donation, not_invested_projects)
     await session.commit()
     await session.refresh(new_donation)
     return new_donation

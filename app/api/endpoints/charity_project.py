@@ -37,14 +37,21 @@ async def create_new_charity_project(
         charity_project: CharityProjectCreate,
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Создать проект. Только для суперпользователей."""
+    """Создать проект. Только для суперпользователя."""
 
-    await check_charity_project_name_duplicate(charity_project.name, session)
-    new_project = await charity_project_crud.create(charity_project, session, flag=False)
+    await check_charity_project_name_duplicate(
+        charity_project.name, session
+    )
+    new_project = await charity_project_crud.create(
+        charity_project,
+        session,
+        commit_choke=False
+    )
     investment(
         new_project,
         await donation_crud.get_not_invested(session)
     )
+    session.add(new_project)
     await session.commit()
     await session.refresh(new_project)
     return new_project
@@ -82,10 +89,9 @@ async def partially_update_charity_project(
         project_in.full_amount, project_by_id.invested_amount
     )
     await check_charity_project_name_duplicate(project_in.name, session)
-    charity_project = await charity_project_crud.update(
+    return await charity_project_crud.update(
         project_by_id, project_in, session
     )
-    return charity_project
 
 
 @router.delete(
