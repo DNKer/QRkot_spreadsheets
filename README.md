@@ -28,7 +28,7 @@
 ![Alembic](https://img.shields.io/badge/Alembic-1.7.7-blue)
 ![aiogoogle](https://img.shields.io/badge/AioGoogle-4.2.0-blue)
 
-![workflow](https://github.com/DNKer/QRkot_spreadsheets/actions/workflows/QRkot_spreadsheets.yml/badge.svg?branch=master&event=push)
+![workflow](https://github.com/DNKer/QRkot_spreadsheets/actions/workflows/QRkot_spreadsheets.yml/badge.svg?branch=main&event=push)
 
 
 ## Установка
