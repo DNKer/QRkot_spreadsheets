@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from aiogoogle import Aiogoogle
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,6 +37,6 @@ async def get_report(
             spreadsheet_id, projects, wrapper_services
         )
     except ValidationError as error:
-        raise HTTPException(status_code=error.status_code,
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=str(error))
     return dict(doc=spreadsheet_url)

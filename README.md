@@ -14,7 +14,7 @@
 - Возможность регистрации пользователей, добавления благотворительных проектов и пожертвований, которые распределяются по открытым проектам.Если создан новый проект, а в базе были «свободные» (не распределённые по проектам) суммы пожертвований — они автоматически инвестируются в новый проект. То же касается и создания пожертвований: если в момент пожертвования есть открытые проекты, эти пожертвования  автоматически зачисляются на их счета.
 - Реализовано формирование отчета в Google таблице, куда попадают только  закрытые проекты, отсортированные по скорости сбора средств.
 
-![logo](tests/fixtures/logo_cats.png)
+<img src="tests\fixtures\logo_cats.png" alt="drawing" width="300" align="center"/>
 
 ## Технологии
 
@@ -199,7 +199,7 @@ GET http://127.0.0.1:8000/donation/
 ```http
 GET http://127.0.0.1:8000/google/
 ```
-![example_table](tests/fixtures/S01_tabel_example.png)
+<img src="tests\fixtures\S01_tabel_example.png" alt="drawing" width="1224" align="center"/>
 
 ### &#10133; _Создание пожертвования:_
 ```http
@@ -228,9 +228,8 @@ GET http://127.0.0.1:8000/users/me/
 ```
 
 
-#### Лицензия
+#### Лицензия <img src="tests\fixtures\qr.PNG" width="148" height="148" title="QR код" align="right"/>
 ###### Free Software, as Is 
 ###### _License Free_
 ###### Author: [Dmitry](https://github.com/DNKer), [Yandex practikum](https://practicum.yandex.ru)
 ###### 2023
-![qr](tests/fixtures/qr.PNG)

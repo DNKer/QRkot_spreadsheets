@@ -29,6 +29,6 @@ SPREADSHEET_BODY = dict(
 
 SPREADSHEET_SIZE_ERROR_MESSAGE = (
     'Невозможно создать таблицу размера {rows} x {columns}. '
-    'Число строк должно быть меньше {ROW_COUNT}, число '
-    'Число колонок должно быть меньше {COLUMN_COUNT}.'
+    f'Число строк должно быть меньше {ROW_COUNT}, число '
+    f'Число колонок должно быть меньше {COLUMN_COUNT}.'
 )
