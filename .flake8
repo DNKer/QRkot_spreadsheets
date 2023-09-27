@@ -9,3 +9,6 @@ exclude =
    alembic/versions/*.py
    venv
    env
+classmethod-decorators =
+    classmethod
+    validator
