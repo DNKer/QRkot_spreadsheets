@@ -15,19 +15,19 @@ class Settings(BaseSettings):
     Настройки проекта.
     """
 
-    app_title: str = 'QRKot'
-    app_author: str = 'DNK'
-    database_url: str = 'sqlite+aiosqlite:///./kitty_foundation.db'
-    secret: str = 'SECRET'
-    description: str = 'Приложение благотворительного фонда поддержки котиков.'
+    app_title = 'QRKot'
+    app_author = 'DNK'
+    database_url = 'sqlite+aiosqlite:///./kitty_foundation.db'
+    secret = 'SECRET'
+    description = 'Приложение благотворительного фонда поддержки котиков.'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
 
     # Переменные для авторизации
-    TOKKEN_URL: str = 'auth/jwt/login'
-    TOKKEN_LIFETIME_SEC: int = 3600
-    BACKEND_NAME_UNIC: str = 'jwt'
-    MAX_LENGHT_PASSWORD: int = 3
+    TOKKEN_URL = 'auth/jwt/login'
+    TOKKEN_LIFETIME_SEC = 3600
+    BACKEND_NAME_UNIC = 'jwt'
+    MAX_LENGHT_PASSWORD = 3
 
     # Переменные для Google API
     type: Optional[str] = None

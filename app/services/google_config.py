@@ -2,11 +2,11 @@ from typing import List
 
 
 # Переменные для Google Sheets
-DATE_FORMAT: str = '%Y/%m/%d %H:%M:%S'
-VERSION_SHEETS: str = 'v4'
-VERSION_DRIVE: str = 'v3'
-ROW_COUNT: int = 100
-COLUMN_COUNT: int = 11
+DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
+VERSION_SHEETS = 'v4'
+VERSION_DRIVE = 'v3'
+ROW_COUNT = 100
+COLUMN_COUNT = 11
 
 HEADER: List[List[str]] = [
     ['Отчёт от', ''],
@@ -14,7 +14,7 @@ HEADER: List[List[str]] = [
     ['Название проекта', 'Время сбора средств', 'Описание']
 ]
 
-TITLE: str = 'Отчёт приложения QRKot на {}'
+TITLE = 'Отчёт приложения QRKot на {}'
 SPREADSHEET_BODY: dict = dict(
     properties=dict(
         locale='ru_RU',
@@ -30,6 +30,8 @@ SPREADSHEET_BODY: dict = dict(
     ))]
 )
 
-SPREADSHEET_SIZE_ERROR_MESSAGE: str = (
-    'Невозможно создать таблицу размера {rows} x {columns}.'
+SPREADSHEET_SIZE_ERROR_MESSAGE = (
+    'Невозможно создать таблицу размера {rows} x {columns}. '
+    'Число строк должно быть меньше {ROW_COUNT}, число '
+    'Число колонок должно быть меньше {COLUMN_COUNT}.'
 )

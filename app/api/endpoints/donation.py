@@ -42,11 +42,13 @@ async def create_donation(
         user,
         commit_choke=False
     )
-    invested_donation = investment(
-        new_donation,
-        await charity_project_crud.get_not_invested(session)
+    session.add_all(
+        [*investment(
+            new_donation,
+            await charity_project_crud.get_not_invested(session)
+        ), new_donation
+        ]
     )
-    session.add_all([*invested_donation, new_donation])
     await session.commit()
     await session.refresh(new_donation)
     return new_donation
