@@ -87,7 +87,7 @@ class CRUDBase:
             self,
             session: AsyncSession
     ) -> List[ModelType]:
-        """Получить незавершенные проекты."""
+        """Получить незавершенные объекты."""
         objects = await session.execute(
             select(self.model).where(
                 self.model.fully_invested == 0
@@ -95,12 +95,11 @@ class CRUDBase:
         )
         return objects.scalars().all()
 
-    async def get_projects_fully_invested(
+    async def get_fully_invested(
             self,
             session: AsyncSession,
     ) -> List[Dict[str, str]]:
-        """Получить НЕсортированный список
-        со всеми завершенными проектами."""
+        """Получить список со всеми завершенными объектами."""
         objects = await session.execute(
             select([self.model],).where(
                 self.model.fully_invested is True)

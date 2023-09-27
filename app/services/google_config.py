@@ -5,6 +5,8 @@ from typing import List
 DATE_FORMAT: str = '%Y/%m/%d %H:%M:%S'
 VERSION_SHEETS: str = 'v4'
 VERSION_DRIVE: str = 'v3'
+ROW_COUNT: int = 100
+COLUMN_COUNT: int = 11
 
 HEADER: List[List[str]] = [
     ['Отчёт от', ''],
@@ -22,16 +24,12 @@ SPREADSHEET_BODY: dict = dict(
         sheetId=0,
         title='Скорость закрытия проектов.',
         gridProperties=dict(
-            rowCount=100,
-            columnCount=11,
+            rowCount=ROW_COUNT,
+            columnCount=COLUMN_COUNT,
         )
     ))]
 )
 
-MAX_COLUMNS_SIZE: int = 18278
-MAX_ROWS_MUX_COLUMNS_SIZE: int = 5000000
 SPREADSHEET_SIZE_ERROR_MESSAGE: str = (
-    'Невозможно создать таблицу размера {rows} x {columns}. '
-    'Google-таблицы могут содержать не больше 5000000 ячеек и '
-    'не более 18278 столбцов суммарно.'
+    'Невозможно создать таблицу размера {rows} x {columns}.'
 )

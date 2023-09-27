@@ -7,12 +7,12 @@ from pydantic import ValidationError
 
 from app.core.config import settings
 from app.services.google_config import (
+    COLUMN_COUNT,
     DATE_FORMAT,
-    MAX_COLUMNS_SIZE,
-    MAX_ROWS_MUX_COLUMNS_SIZE,
     VERSION_DRIVE,
     VERSION_SHEETS,
     HEADER,
+    ROW_COUNT,
     SPREADSHEET_BODY,
     SPREADSHEET_SIZE_ERROR_MESSAGE,
     TITLE
@@ -80,14 +80,14 @@ async def spreadsheets_update_value(
     """Записывает полученную из базы данных информацию в документ с таблицами."""
     service = await wrapper_services.discover('sheets', VERSION_SHEETS)
     header = copy.deepcopy(HEADER)
-    header[0][1] = datetime.utcnow()
+    header[0][1] = str(datetime.utcnow())
     table_values = [
         *header,
         *[list(map(str, field)) for field in get_sorted_projects(projects)],
     ]
     rows = len(table_values)
     columns = max(map(len, table_values))
-    if rows * columns > MAX_ROWS_MUX_COLUMNS_SIZE or columns > MAX_COLUMNS_SIZE:
+    if rows > ROW_COUNT or columns > COLUMN_COUNT:
         raise ValidationError(
             SPREADSHEET_SIZE_ERROR_MESSAGE.format(
                 rows=rows, columns=columns
