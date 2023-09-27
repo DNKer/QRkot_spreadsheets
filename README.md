@@ -23,9 +23,12 @@
 [![asyncio](https://img.shields.io/badge/-asyncio-464646?style=plastic&color=008080)](https://docs.python.org/3.9/library/asyncio.html)
 [![pyJWT](https://img.shields.io/badge/-pyJWT-464646?style=plastic&color=008080)](https://pypi.org/project/PyJWT/)
 [![Google Sheets](https://img.shields.io/badge/Google%20Seets-008080)](https://www.google.ru/intl/ru/sheets/about/)
+[![GitHub%20Actions](https://img.shields.io/badge/-GitHub%20Actions-464646?style=plastic&logo=GitHub%20actions&logoColor=56C0C0&color=008080)](https://github.com/features/actions)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-1.4.36-blue)
 ![Alembic](https://img.shields.io/badge/Alembic-1.7.7-blue)
 ![aiogoogle](https://img.shields.io/badge/AioGoogle-4.2.0-blue)
+
+![workflow](https://github.com/DNKer/QRkot_spreadsheets/actions/workflows/QRkot_spreadsheets.yml/badge.svg?branch=master&event=push)
 
 
 ## Установка
