@@ -1,9 +1,8 @@
-import json
 from typing import Any, Dict
 
 from aiogoogle import Aiogoogle
 from fastapi import APIRouter, Depends, HTTPException
-from googleapiclient.errors import HttpError
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
@@ -37,7 +36,7 @@ async def get_report(
         await spreadsheets_update_value(
             spreadsheet_id, projects, wrapper_services
         )
-    except HttpError as error:
+    except ValidationError as error:
         raise HTTPException(status_code=error.status_code,
-                            detail=json.loads(error.content.decode('utf-8')))
+                            detail=str(error))
     return dict(doc=spreadsheet_url)
