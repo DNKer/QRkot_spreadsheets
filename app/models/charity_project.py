@@ -8,7 +8,7 @@ class CharityProject(CharityDonationModel):
     """Модель `Благотворительный проект`."""
 
     @declared_attr
-    def __table_args__(cls) -> tuple:
+    def __table_args__(self) -> tuple:
         return (
             *super().__table_args__, CheckConstraint('length(name) > 0'),
             CheckConstraint('length(description) > 0'))
